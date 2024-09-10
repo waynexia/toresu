@@ -20,11 +20,27 @@ const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
                 const nodeData = {
                     id: `${row.stage}-${row.node}`,
                     position: { x: 0, y: 0 },
-                    data: { label: row.plan[0] },
+                    // draggable: false,
+                    // data: { label: row.plan[0] },
+                    data: { label: `${row.stage}-${row.node}` },
                     // parentId: parentId,
                     // extent: 'parent',
                 }
                 treeNodeData.push(nodeData)
+
+                // inner plan steps
+                row.plan.forEach((planItem, index) => {
+                    const nodeData = {
+                        id: `${row.stage}-${row.node}-${index}`,
+                        position: { x: 50 * index, y: 50 * index },
+                        data: { label: planItem },
+                        parentId: `${row.stage}-${row.node}`,
+                        draggable: false,
+                        expandParent: true,
+                        extent: 'parent',
+                    };
+                    treeNodeData.push(nodeData);
+                });
             });
 
         // parent nodes
@@ -61,6 +77,20 @@ const generateTreeEdgeData = (rows: ExplainAnalyzeRow[]): any => {
             nodesPerStage[row.stage] = 0
         }
         nodesPerStage[row.stage] = Math.max(nodesPerStage[row.stage], row.node)
+
+        for (let numStep = 1; numStep < row.plan.length; numStep++) {
+
+            const targetId = `${row.stage}-${row.node}-${numStep}`;
+            const sourceId = `${row.stage}-${row.node}-${numStep - 1}`;
+            const edgeData = {
+                id: `e-${sourceId}-${targetId}`,
+                source: sourceId,
+                target: targetId,
+                animated: false,
+                style: { stroke: '#000' },
+            };
+            treeEdgeData.push(edgeData);
+        }
     })
 
     Object.entries(nodesPerStage).forEach(([stage, maxNode]) => {
@@ -125,8 +155,10 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
 
     const onLayout = useCallback(
         () => {
-            const layouted = getLayoutedElements(nodes, edges, 'TB');
-            setNodes([...layouted.nodes]);
+            const parentNodes = nodes.filter((node: { parentId: null | undefined; }) => node.parentId === null || node.parentId === undefined);
+            const childNodes = nodes.filter((node: { parentId: null | undefined; }) => node.parentId !== null && node.parentId !== undefined);
+            const layouted = getLayoutedElements(parentNodes, edges, 'TB');
+            setNodes([...layouted.nodes, ...childNodes]);
             setEdges([...layouted.edges]);
             window.requestAnimationFrame(() => {
                 fitView();
@@ -138,7 +170,6 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
     const handleRefresh = () => {
         setNodes(generateTreeNodeData(rows));
         setEdges(generateTreeEdgeData(rows));
-        // onLayout()
         console.log("nodes: ", nodes)
     };
 
