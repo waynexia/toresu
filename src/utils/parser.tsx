@@ -1,4 +1,4 @@
-interface ExplainAnalyzeRow {
+export interface ExplainAnalyzeRow {
     stage: number | null;
     node: number | null;
     plan: string[];

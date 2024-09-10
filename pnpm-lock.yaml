@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@dagrejs/dagre':
+        specifier: ^1.1.4
+        version: 1.1.4
       '@xyflow/react':
         specifier: ^12.2.1
         version: 12.2.1(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -22,7 +25,7 @@ importers:
         version: 18.3.1(react@18.3.1)
     devDependencies:
       '@eslint/js':
-        specifier: ^9.9.0
+        specifier: ^9.10.0
         version: 9.10.0
       '@testing-library/jest-dom':
         specifier: ^6.5.0
@@ -31,7 +34,7 @@ importers:
         specifier: ^16.0.1
         version: 16.0.1(@testing-library/dom@10.4.0)(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
-        specifier: ^18.3.3
+        specifier: ^18.3.5
         version: 18.3.5
       '@types/react-dom':
         specifier: ^18.3.0
@@ -43,13 +46,13 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5(vitest@2.0.5)
       eslint:
-        specifier: ^9.9.0
+        specifier: ^9.10.0
         version: 9.10.0
       eslint-plugin-react-hooks:
-        specifier: ^5.1.0-rc.0
+        specifier: 5.1.0-rc-fb9a90fa48-20240614
         version: 5.1.0-rc-fb9a90fa48-20240614(eslint@9.10.0)
       eslint-plugin-react-refresh:
-        specifier: ^0.4.9
+        specifier: ^0.4.11
         version: 0.4.11(eslint@9.10.0)
       globals:
         specifier: ^15.9.0
@@ -58,13 +61,13 @@ importers:
         specifier: ^25.0.0
         version: 25.0.0
       typescript:
-        specifier: ^5.5.3
+        specifier: ^5.6.2
         version: 5.6.2
       typescript-eslint:
-        specifier: ^8.0.1
+        specifier: ^8.5.0
         version: 8.5.0(eslint@9.10.0)(typescript@5.6.2)
       vite:
-        specifier: ^5.4.1
+        specifier: ^5.4.3
         version: 5.4.3
       vitest:
         specifier: ^2.0.5
@@ -207,6 +210,13 @@ packages:
   '@ctrl/tinycolor@3.6.1':
     resolution: {integrity: sha512-SITSV6aIXsuVNV3f3O0f2n/cgyEDWoSqtZMYiAmcsYHydcKrOz3gUxB/iXd/Qf08+IZX4KpgNbvUdMBmWz+kcA==}
     engines: {node: '>=10'}
+
+  '@dagrejs/dagre@1.1.4':
+    resolution: {integrity: sha512-QUTc54Cg/wvmlEUxB+uvoPVKFazM1H18kVHBQNmK2NbrDR5ihOCR6CXLnDSZzMcSQKJtabPUWridBOlJM3WkDg==}
+
+  '@dagrejs/graphlib@2.2.4':
+    resolution: {integrity: sha512-mepCf/e9+SKYy1d02/UkvSy6+6MoyXhVxP8lLDfA7BPE1X1d4dR0sZznmbM8/XVJ1GPM+Svnx7Xj6ZweByWUkw==}
+    engines: {node: '>17.0.0'}
 
   '@emotion/hash@0.8.0':
     resolution: {integrity: sha512-kBJtf7PH6aWwZ6fka3zQ0p6SBYzx4fl1LoZXE2RrnYST9Xljm7WfKJrU4g/Xr3Beg72MLrp1AWNUmuYJTL7Cow==}
@@ -2168,6 +2178,12 @@ snapshots:
       to-fast-properties: 2.0.0
 
   '@ctrl/tinycolor@3.6.1': {}
+
+  '@dagrejs/dagre@1.1.4':
+    dependencies:
+      '@dagrejs/graphlib': 2.2.4
+
+  '@dagrejs/graphlib@2.2.4': {}
 
   '@emotion/hash@0.8.0': {}
 

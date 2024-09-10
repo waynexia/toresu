@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { Input, Button } from 'antd';
-import { parseExplainAnalyzeOutput } from './utils/parser';
+import { ExplainAnalyzeRow, parseExplainAnalyzeOutput } from './utils/parser';
 
 const { TextArea } = Input;
 
-const ExplainAnalyzeParser: React.FC = () => {
+const ExplainAnalyzeParser: React.FC<{ onParse: (parsedData: ExplainAnalyzeRow[]) => void }> = ({ onParse }) => {
   const [input, setInput] = useState('');
   const [wrap, setWrap] = useState(false);
-  const [parsedData, setParsedData] = useState(null);
 
   const handleSubmit = () => {
     const parsed = parseExplainAnalyzeOutput(input);
-    setParsedData(parsed);
-    console.log('Parsed data:', parsed);
+    onParse(parsed);
   };
 
   const addLineNumbers = (text: string) => {
@@ -44,11 +42,6 @@ const ExplainAnalyzeParser: React.FC = () => {
       <Button type="primary" onClick={handleSubmit} style={{ marginTop: '10px' }}>
         Submit
       </Button>
-      {parsedData && (
-        <pre style={{ marginTop: '20px' }}>
-          {JSON.stringify(parsedData, null, 2)}
-        </pre>
-      )}
     </div>
   );
 };
