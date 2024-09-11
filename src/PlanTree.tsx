@@ -29,7 +29,9 @@ const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
                     // parentId: parentId,
                     // extent: 'parent',
                     zIndex: -1,
-
+                    draggable: false,
+                    selectable: false,
+                    deletable: false,
                 }
                 treeNodeData.push(nodeData)
 
@@ -37,13 +39,15 @@ const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
                 row.plan.forEach((planItem, index) => {
                     const nodeData = {
                         id: `${row.stage}-${row.node}-${index}`,
-                        position: { x: 50 * index, y: 50 * index },
+                        position: { x: 0, y: 0 },
                         data: parsePlanProperties(planItem),
                         parentId: `${row.stage}-${row.node}`,
-                        draggable: false,
-                        expandParent: true,
-                        extent: 'parent',
+                        // expandParent: true,
+                        // extent: 'parent',
                         type: 'planNode',
+                        draggable: false,
+                        selectable: false,
+                        deletable: false,
                     };
                     treeNodeData.push(nodeData);
                 });
@@ -160,7 +164,7 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
 
     const onLayout = useCallback(
         () => {
-            const parentNodes = nodes.filter((node: { parentId: null | undefined; }) => node.parentId === null || node.parentId === undefined);
+            let parentNodes = nodes.filter((node: { parentId: null | undefined; }) => node.parentId === null || node.parentId === undefined);
             const childNodes = nodes.filter((node: { parentId: null | undefined; }) => node.parentId !== null && node.parentId !== undefined);
 
             // Group childNodes by 'group' field
@@ -173,18 +177,38 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
                 return acc;
             }, {});
 
-            // Layout parent nodes
-            const layoutedParentNodes = getLayoutedElements(parentNodes, edges, 'TB');
-
             // Layout child nodes by group
             const layoutedChildNodes = [];
             const groupedChildNodesArray = Object.values(groupedChildNodes);
             for (let i = 0; i < groupedChildNodesArray.length; i++) {
                 const groupNodes = groupedChildNodesArray[i];
                 const layoutedGroup = getLayoutedElements(groupNodes, edges, 'TB');
-                console.log("group layouted: ", layoutedGroup.nodes);
                 layoutedChildNodes.push(...layoutedGroup.nodes);
             }
+
+            // Compute parent node's size
+            let parentSizes = new Map<string, { width: number; height: number }>();
+            for (let i = 0; i < layoutedChildNodes.length; i++) {
+                const childNode = layoutedChildNodes[i];
+                const nodeX = childNode.position.x + (childNode.measured?.width ?? 0);
+                const nodeY = childNode.position.y + (childNode.measured?.height ?? 0);
+                if (!parentSizes.has(childNode.parentId)) {
+                    parentSizes.set(childNode.parentId, { width: nodeX, height: nodeY });
+                } else {
+                    const maxWidth = Math.max(nodeX, parentSizes.get(childNode.parentId)!.width);
+                    const maxHeight = Math.max(nodeY, parentSizes.get(childNode.parentId)!.height);
+                    parentSizes.set(childNode.parentId, { width: maxWidth, height: maxHeight });
+                }
+            }
+            for (let i = 0; i < parentNodes.length; i++) {
+                if (parentSizes.has(parentNodes[i].id)) {
+                    parentNodes[i].style = parentSizes.get(parentNodes[i].id)!;
+                    parentNodes[i].measured = parentSizes.get(parentNodes[i].id)!;
+                }
+            }
+
+            // Layout parent nodes
+            const layoutedParentNodes = getLayoutedElements(parentNodes, edges, 'TB');
 
             setNodes([...layoutedParentNodes.nodes, ...layoutedChildNodes]);
             setEdges([...layoutedParentNodes.edges]);
