@@ -2,8 +2,11 @@ import React, { useCallback, useState } from 'react';
 import { ExplainAnalyzeRow } from './utils/parser';
 import { applyNodeChanges, Background, Controls, Node, NodeChange, ReactFlow, ReactFlowProvider, useReactFlow } from '@xyflow/react';
 import Dagre from '@dagrejs/dagre'
-
 import '@xyflow/react/dist/style.css';
+import PlanNode from './PlanNode';
+import { parsePlanProperties } from './utils/nodeParser';
+
+const nodeTypes = { planNode: PlanNode };
 
 const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
     const buildTree = (nodes: ExplainAnalyzeRow[]) => {
@@ -25,19 +28,22 @@ const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
                     data: { label: `${row.stage}-${row.node}` },
                     // parentId: parentId,
                     // extent: 'parent',
+                    zIndex: -1,
+
                 }
                 treeNodeData.push(nodeData)
 
-                // inner plan steps
+                // inner plan step nodes
                 row.plan.forEach((planItem, index) => {
                     const nodeData = {
                         id: `${row.stage}-${row.node}-${index}`,
                         position: { x: 50 * index, y: 50 * index },
-                        data: { label: planItem },
+                        data: parsePlanProperties(planItem),
                         parentId: `${row.stage}-${row.node}`,
                         draggable: false,
                         expandParent: true,
                         extent: 'parent',
+                        type: 'planNode',
                     };
                     treeNodeData.push(nodeData);
                 });
@@ -62,7 +68,6 @@ const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
     const treeNodeData: any[] = [];
     buildTree(rows);
 
-    console.log("tree node data: ", treeNodeData);
     return treeNodeData;
 };
 
@@ -157,9 +162,32 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
         () => {
             const parentNodes = nodes.filter((node: { parentId: null | undefined; }) => node.parentId === null || node.parentId === undefined);
             const childNodes = nodes.filter((node: { parentId: null | undefined; }) => node.parentId !== null && node.parentId !== undefined);
-            const layouted = getLayoutedElements(parentNodes, edges, 'TB');
-            setNodes([...layouted.nodes, ...childNodes]);
-            setEdges([...layouted.edges]);
+
+            // Group childNodes by 'group' field
+            const groupedChildNodes = childNodes.reduce((acc, node) => {
+                const parentId = node.parentId || 'default';
+                if (!acc[parentId]) {
+                    acc[parentId] = [];
+                }
+                acc[parentId].push(node);
+                return acc;
+            }, {});
+
+            // Layout parent nodes
+            const layoutedParentNodes = getLayoutedElements(parentNodes, edges, 'TB');
+
+            // Layout child nodes by group
+            const layoutedChildNodes = [];
+            const groupedChildNodesArray = Object.values(groupedChildNodes);
+            for (let i = 0; i < groupedChildNodesArray.length; i++) {
+                const groupNodes = groupedChildNodesArray[i];
+                const layoutedGroup = getLayoutedElements(groupNodes, edges, 'TB');
+                console.log("group layouted: ", layoutedGroup.nodes);
+                layoutedChildNodes.push(...layoutedGroup.nodes);
+            }
+
+            setNodes([...layoutedParentNodes.nodes, ...layoutedChildNodes]);
+            setEdges([...layoutedParentNodes.edges]);
             window.requestAnimationFrame(() => {
                 fitView();
             });
@@ -182,7 +210,7 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
             <button onClick={handleRefresh} style={{ marginBottom: '10px' }}>Refresh</button>
             <button onClick={handleLayout} style={{ marginBottom: '10px' }}>layout</button>
             <div style={{ width: '80vw', height: '80vh', border: '1px solid gray', borderRadius: '5px' }}>
-                <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} fitView attributionPosition="top-right">
+                <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} nodeTypes={nodeTypes} fitView attributionPosition="top-right">
                     <Background />
                     <Controls />
                 </ReactFlow>
