@@ -42,6 +42,9 @@ const ExplainAnalyzeParser: React.FC<{ onParse: (parsedData: ExplainAnalyzeRow[]
       <Button type="primary" onClick={handleSubmit} style={{ marginTop: '10px' }}>
         Submit
       </Button>
+      <p>
+        Click "Submit", "Refresh" and "Layout" in order
+      </p>
     </div>
   );
 };

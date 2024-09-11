@@ -52,21 +52,6 @@ const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
                     treeNodeData.push(nodeData);
                 });
             });
-
-        // parent nodes
-        // for (let stage = 0; stage <= maxStage; stage++) {
-        //     const nodeData = {
-        //         id: `${stage}`,
-        //         position: { x: 0, y: 0 },
-        //         data: { label: `stage ${stage}` },
-        //         style: {
-        //             width: 300,
-        //             height: 300,
-        //         },
-        //         type: 'group'
-        //     };
-        //     treeNodeData.push(nodeData);
-        // }
     };
 
     const treeNodeData: any[] = [];
@@ -222,7 +207,6 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
     const handleRefresh = () => {
         setNodes(generateTreeNodeData(rows));
         setEdges(generateTreeEdgeData(rows));
-        console.log("nodes: ", nodes)
     };
 
     const handleLayout = () => {
@@ -232,7 +216,7 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
     return (
         <>
             <button onClick={handleRefresh} style={{ marginBottom: '10px' }}>Refresh</button>
-            <button onClick={handleLayout} style={{ marginBottom: '10px' }}>layout</button>
+            <button onClick={handleLayout} style={{ marginBottom: '10px' }}>Layout</button>
             <div style={{ width: '80vw', height: '80vh', border: '1px solid gray', borderRadius: '5px' }}>
                 <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} nodeTypes={nodeTypes} fitView attributionPosition="top-right">
                     <Background />

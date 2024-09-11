@@ -13,11 +13,11 @@ function App() {
 
   return (
     <div>
-      <h1>EXPLAIN ANALYZE Parser</h1>
+      <h1>EXPLAIN ANALYZE Visualizer</h1>
       <ExplainAnalyzeParser onParse={handleParsedData} />
       <PlanTree rows={parsedData} />
       {parsedData.length > 0 && (
-        <div>
+        <div style={{ color: 'white' }}>
           <h2>Parsed Data:</h2>
           <pre>{JSON.stringify(parsedData, null, 2)}</pre>
         </div>
