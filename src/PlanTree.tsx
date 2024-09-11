@@ -19,7 +19,6 @@ const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
 
                 // inner nodes
                 maxStage = Math.max(maxStage, row.stage);
-                // const parentId = row.stage === 0 ? null : `${row.stage - 1}`;
                 const nodeData = {
                     id: `${row.stage}-${row.node}`,
                     position: { x: 0, y: 0 },
@@ -28,6 +27,7 @@ const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
                     data: { label: `${row.stage}-${row.node}` },
                     // parentId: parentId,
                     // extent: 'parent',
+                    style: { backgroundColor: 'rgba(0, 0, 0, 0.05)', borderColor: 'lightgray' },
                     zIndex: -1,
                     draggable: false,
                     selectable: false,
@@ -46,7 +46,7 @@ const generateTreeNodeData = (rows: ExplainAnalyzeRow[]): any => {
                         // extent: 'parent',
                         type: 'planNode',
                         draggable: false,
-                        selectable: false,
+                        selectable: true,
                         deletable: false,
                     };
                     treeNodeData.push(nodeData);
@@ -187,7 +187,8 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
             }
             for (let i = 0; i < parentNodes.length; i++) {
                 if (parentSizes.has(parentNodes[i].id)) {
-                    parentNodes[i].style = parentSizes.get(parentNodes[i].id)!;
+                    parentNodes[i].style.width = parentSizes.get(parentNodes[i].id)!.width;
+                    parentNodes[i].style.height = parentSizes.get(parentNodes[i].id)!.height;
                     parentNodes[i].measured = parentSizes.get(parentNodes[i].id)!;
                 }
             }
@@ -217,7 +218,7 @@ const LayoutTree: React.FC<{ rows: ExplainAnalyzeRow[] }> = ({ rows }) => {
         <>
             <button onClick={handleRefresh} style={{ marginBottom: '10px' }}>Refresh</button>
             <button onClick={handleLayout} style={{ marginBottom: '10px' }}>Layout</button>
-            <div style={{ width: '80vw', height: '80vh', border: '1px solid gray', borderRadius: '5px' }}>
+            <div style={{ width: '90vw', height: '90vh', border: '1px solid gray', borderRadius: '5px' }}>
                 <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} nodeTypes={nodeTypes} fitView attributionPosition="top-right">
                     <Background />
                     <Controls />
